@@ -32,10 +32,9 @@ app.post("/admin/add-pet", upload.single("image"), (req, res) => {
         if (err) throw err
     })
     res.send('Pet added to database')
-    console.log(parsed);
 });
 
-app.get('/', (req, res) => {
+app.get('/search', (req, res) => {
     const data = fs.readFileSync("./data.json", 'utf8', (err, data) => {
         if (err) throw err;
         else { return data }
@@ -49,6 +48,7 @@ app.get('/', (req, res) => {
     //     else { return data }
     // })
     // const dataObj = { users: userData, pets: petData }
+    // console.log(data);
     res.send(data)
 })
 
