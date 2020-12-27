@@ -1,5 +1,4 @@
-{
-    "users": [
+[
         {
             "admin": true,
             "login": true,
@@ -59,7 +58,7 @@
             "color": "black",
             "bio": "i'm a cat, hkvhkdvkhvkh",
             "hypoallergenic": "false",
-            "diet": "blue stuff"
+            "diet-restrictions": "blue stuff"
         },
         {
             "userId": 1,
@@ -74,7 +73,7 @@
             "color": "whitish brown",
             "bio": "fdlkdsfjkl flkdsfkjldsf ,dsfkldudf oupqeruioe.",
             "hypoallergenic": "true",
-            "diet": "none"
+            "diet-restrictions": "none"
         },
         {
             "userId": 1,
@@ -89,7 +88,7 @@
             "color": "blue",
             "bio": "azsx dcfggn mk,io, jdffhfufdu.",
             "hypoallergenic": "false",
-            "diet": "no living things"
+            "diet-restrictions": "no living things"
         },
         {
             "userId": 2,
@@ -104,7 +103,7 @@
             "color": "red",
             "bio": "qawsed r tgyh ujuikkp0, azdc fvi.",
             "hypoallergenic": "true",
-            "diet": "only living things"
+            "diet-restrictions": "only living things"
         },
         {
             "userId": 2,
@@ -119,7 +118,7 @@
             "color": "rainbow",
             "bio": "qwwd yhuj ujjikk, fgrgr tbtt jm.",
             "hypoallergenic": "false",
-            "diet": "algorithms"
+            "diet-restrictions": "algorithms"
         },
         {
             "userId": 2,
@@ -134,7 +133,7 @@
             "color": "brown",
             "bio": "qaee rfyuj pgee, dcrtg yyb yfgdfp.",
             "hypoallergenic": "true",
-            "diet": "onion and chocolate"
+            "diet-restrictions": "onion and chocolate"
         },
         {
             "userId": "",
@@ -149,7 +148,7 @@
             "color": "white",
             "bio": "plok 8nyt rvrr eefed, ddcdgt dfsfeg ,qat hnm.",
             "hypoallergenic": "false",
-            "diet": "black pepper"
+            "diet-restrictions": "black pepper"
         },
         {
             "name": "123",
@@ -160,12 +159,10 @@
             "color": "123",
             "bio": "123",
             "hypoallergenic": "false",
-            "dietaryRestrictions": "",
-            "diet": "123123",
+            "diet-restrictions": "123123",
             "status": "null",
             "userId": "",
             "image": "image-1608812857873.jpg",
             "id": 8
         }
     ]
-}
