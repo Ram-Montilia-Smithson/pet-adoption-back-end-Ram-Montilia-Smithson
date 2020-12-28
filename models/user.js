@@ -1,6 +1,6 @@
 const fs = require("fs")
 
-const filePath = "../users.json";
+const filePath = "./users.json";
 
 module.exports = class User {
 

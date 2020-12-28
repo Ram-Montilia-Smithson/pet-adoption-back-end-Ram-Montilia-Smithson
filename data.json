@@ -1,4 +1,5 @@
-[
+{
+    "users": [
         {
             "admin": true,
             "login": true,
@@ -166,3 +167,4 @@
             "id": 8
         }
     ]
+}
