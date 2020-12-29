@@ -1,9 +1,4 @@
-// import User from "../models/user"
-
-const User = require("../models/user");
-
-const { isEmpty } = require("../utils/helper")
-
+const User = require("../schemas/user");
 
 const getUsers = (req, res) => {
     const queryParams = req.query;
