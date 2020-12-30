@@ -1,42 +1,66 @@
-const User = require("../schemas/user");
+const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
+const url = "mongodb+srv://Ram:Ct9!7HSWeE@npVB@cluster0.ezysc.mongodb.net/petAdoptionProject?retryWrites=true&w=majority";
+const db = mongoose.connection;
+const User = require("../schemas/userSchema");
+db.collection("users")
 
-const getUsers = (req, res) => {
-    const queryParams = req.query;
-    const user = new User()
-    const userList = isEmpty(queryParams) ? user.findAll() : user.findByParams(queryParams)
-    res.json(userList);
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    console.log("connectede successfully user controller")
+});
+
+// works
+const getUsers = async (req, res) => {
+    User.find(function (err, users) {
+        if (err) return console.error(err);
+        res.send(users);
+    })
 }
 
-const getUserById = (req, res) => {
-    const user = new User()
-    const user2 = user.findById(req.params.id)
-    res.json(user2);
-}
-
-const deleteUserById = (req, res) => {
-    const { id } = req.params;
-
-    const user = new User()
-    const userList = user.deleteById(id)
-
-    res.json(userList);
-}
-
+// works
 const addNewUser = (req, res) => {
     const newUser = req.body;
-    const user = new User()
-    const userList = user.add(newUser)
-
-    res.json(userList);
+    const user = new User(newUser)
+    user.save((function (err, user) {
+        if (err) return console.error(err);
+        console.log(user, "addNewUser");
+    }))
+    res.send(newUser)
 }
 
-const updateUserById = (req, res) => {
-    const { id } = req.params;
-    const newUserInfo = req.body;
-    const user = new User()
-    const userList = user.updateById(id, newUserInfo)
+// works
+const getUserById = async (req, res) => {
+    const userId = req.params.id
+    console.log(userId, "userId");
+    User.findOne({ _id: ObjectId(userId) }, function (err, foundUserById) {
+        if (err) return console.log(err);
+        res.send(foundUserById);
+    })
+}
 
-    res.json(userList);
+// works
+const deleteUserById = (req, res) => {
+    const userId = req.params.id
+    User.deleteOne({ _id: ObjectId(userId) }, function (err, deletedUserById) {
+        if (err) { res.send(err) }
+        else if (deletedUserById.n === 0) { res.send("no user was deleted") }
+        else {
+            const message = `the user with the id of ${userId} was deleted`
+            res.send(message)
+        }
+    })
+}
+
+// not working
+const updateUserById = (req, res) => {
+    const userId = req.params.id
+    User.updateOne({ _id: ObjectId(userId) }, function (err, updatedUserById) {
+        if (err) { res.send(err) }
+        console.log(updatedUserById);
+    })    
 }
 
 module.exports = { getUserById, deleteUserById, addNewUser, updateUserById, getUsers }
