@@ -19,7 +19,7 @@ const getPets = async (req, res) => {
         res.send(pets);
     })
 }
-// works
+// works, but not with images
 const addNewPet = (req, res) => {
     const newPet = req.body;
     const pet = new Pet(newPet) 
@@ -52,14 +52,26 @@ const deletePetById = (req, res) => {
     })
 }
 
-// not working
+// works
 const updatePetById = (req, res) => {
-    const { id } = req.params;
-    const newPetInfo = req.body;
-    const pet = new Pet()
-    const PetList = pet.updateById(id, newPetInfo) //convert to mongoos
-
-    res.json(PetList);
+    const petId = req.params.id
+    Pet.findOneAndUpdate(
+        // finding the doc
+        { _id: ObjectId(petId) },
+        // update the doc - req.body
+        { bio: 'new bio' },
+        // options
+        { new: true, useFindAndModify: false },
+        // cb
+        function (err, updatedPet) {
+            if (err) { res.send(err) }
+            // console.log(err)
+            // else if()
+            else {
+                // console.log(update);
+                res.send(updatedPet)
+            }
+        })
 }
 
 module.exports = { getPetById, deletePetById, addNewPet, updatePetById, getPets }

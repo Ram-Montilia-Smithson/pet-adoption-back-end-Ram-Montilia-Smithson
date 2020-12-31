@@ -34,7 +34,7 @@ const addNewUser = (req, res) => {
 // works
 const getUserById = async (req, res) => {
     const userId = req.params.id
-    console.log(userId, "userId");
+    // console.log(userId, "userId");
     User.findOne({ _id: ObjectId(userId) }, function (err, foundUserById) {
         if (err) return console.log(err);
         res.send(foundUserById);
@@ -48,19 +48,36 @@ const deleteUserById = (req, res) => {
         if (err) { res.send(err) }
         else if (deletedUserById.n === 0) { res.send("no user was deleted") }
         else {
+            console.log(res);
             const message = `the user with the id of ${userId} was deleted`
             res.send(message)
         }
+        // 
+        console.log(deletedUserById);
+        // 
     })
 }
 
-// not working
+// works
 const updateUserById = (req, res) => {
     const userId = req.params.id
-    User.updateOne({ _id: ObjectId(userId) }, function (err, updatedUserById) {
-        if (err) { res.send(err) }
-        console.log(updatedUserById);
-    })    
+    User.findOneAndUpdate(
+        // finding the doc
+        { _id: ObjectId(userId) },
+        // update the doc - req.body
+        { bio: 'new bio' },
+        // options
+        { new: true, useFindAndModify: false },
+        // cb
+        function (err, updatedUser) {
+            if (err) { res.send(err) }
+            // console.log(err)
+            // else if()
+            else {
+                // console.log(update);
+                res.send(updatedUser)
+            }
+    })
 }
 
 module.exports = { getUserById, deleteUserById, addNewUser, updateUserById, getUsers }

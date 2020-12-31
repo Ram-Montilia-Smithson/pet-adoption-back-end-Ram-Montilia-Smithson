@@ -4,6 +4,23 @@ const port = 5000
 const cors = require("cors")
 const petRouter = require("./routs/petRouter");
 const userRouter = require("./routs/usersRouter")
+// const fs = require('fs')
+// const multer = require('multer')
+// const path = require("path")
+// const jwt = require('jsonwebtoken')
+// const bodyParser = require('body-parser')
+// // const { MongoClient, ObjectID } = require("mongodb");
+// const cloudinary = require('cloudinary').v2;
+
+// cloudinary.config({
+//     cloud_name: 'pet-image-cloud',
+//     api_key: '477269894866243',
+//     api_secret: '8c5bqcREahOR6ulEUbraisngmDY'
+// });
+
+
+
+
 
 app.use(cors())
 app.use(express.json())
@@ -13,13 +30,6 @@ app.use('/api/users', userRouter)
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
 })
-
-// const fs = require('fs')
-// const multer = require('multer')
-// const path = require("path")
-// const jwt = require('jsonwebtoken')
-// const bodyParser = require('body-parser')
-// const { MongoClient, ObjectID } = require("mongodb");
 
 // const storage = multer.diskStorage({
 //     destination: function (req, file, cb) { cb(null, './images') },
