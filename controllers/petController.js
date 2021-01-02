@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const url = "mongodb+srv://Ram:Ct9!7HSWeE@npVB@cluster0.ezysc.mongodb.net/petAdoptionProject?retryWrites=true&w=majority";
 const db = mongoose.connection;
 const Pet = require("../schemas/petSchema")
+// const multer = require('multer')
+// const cloudinary = require('cloudinary').v2;
+
 db.collection("pets")
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -12,6 +15,24 @@ db.once('open', function () {
     console.log("connectede successfully pet controller")
 });
 
+// cloudinary.config({
+    // cloud_name: 'pet-image-cloud',
+    // api_key: '477269894866243',
+    // api_secret: '8c5bqcREahOR6ulEUbraisngmDY'
+    // CLOUDINARY_URL=cloudinary://477269894866243:8c5bqcREahOR6ulEUbraisngmDY@pet-image-cloud
+// });
+
+// const storage = multer.diskStorage({
+    // destination: function (req, file, cb) {
+        // console.log("file", file, "req", req);
+        // cb(null, './images')
+    // },
+    // filename: function (req, file, cb) {
+        // cb(null, file.originalname)
+    // }
+// })
+// const upload = multer({ storage })
+
 // works
 const getPets = async (req, res) => {
     Pet.find(function (err, pets) {
@@ -19,16 +40,18 @@ const getPets = async (req, res) => {
         res.send(pets);
     })
 }
-// works, but not with images
-const addNewPet = (req, res) => {
-    const newPet = req.body;
-    const pet = new Pet(newPet) 
-    pet.save((function (err, pet) {
-        if (err) return console.error(err);
-        console.log(pet, "addNewPet");
-    }))
-    res.send(newPet)
-}
+// works with images, in server
+
+// const addNewPet = (req, res) => {
+//     const newPet = req.body;
+//     const pet = new Pet(newPet)
+//     pet.save((function (err, pet) {
+//         if (err) return console.error(err);
+//         console.log(pet, "addNewPet");
+//     }))
+//     res.send(newPet)
+// }
+
 // works
 const getPetById = async (req, res) => {
     const petId = req.params.id
@@ -74,4 +97,4 @@ const updatePetById = (req, res) => {
         })
 }
 
-module.exports = { getPetById, deletePetById, addNewPet, updatePetById, getPets }
+module.exports = { getPetById, deletePetById, updatePetById, getPets }
