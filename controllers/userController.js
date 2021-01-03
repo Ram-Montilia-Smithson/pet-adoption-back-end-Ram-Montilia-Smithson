@@ -3,6 +3,8 @@ const { ObjectId } = require('mongodb');
 const url = "mongodb+srv://Ram:Ct9!7HSWeE@npVB@cluster0.ezysc.mongodb.net/petAdoptionProject?retryWrites=true&w=majority";
 const db = mongoose.connection;
 const User = require("../schemas/userSchema");
+const bcrypt = require("bcrypt")
+
 db.collection("users")
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -20,15 +22,18 @@ const getUsers = async (req, res) => {
     })
 }
 
-// works
-const addNewUser = (req, res) => {
-    const newUser = req.body;
+// works with bcrypt
+const addNewUser = async (req, res) => {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    console.log("hashedpassword", hashedPassword)
+    req.body.password = hashedPassword
+    const newUser = req.body
     const user = new User(newUser)
     user.save((function (err, user) {
         if (err) return console.error(err);
         console.log(user, "addNewUser");
     }))
-    res.send(newUser)
+    res.status(201).send(newUser)
 }
 
 // works
