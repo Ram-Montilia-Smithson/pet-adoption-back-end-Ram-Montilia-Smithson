@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { ObjectId } = require('mongodb');
-const url = "mongodb+srv://Ram:Ct9!7HSWeE@npVB@cluster0.ezysc.mongodb.net/petAdoptionProject?retryWrites=true&w=majority";
+const url = process.env.MONGO_CONNECTION_STRING ;
 const db = mongoose.connection;
 const User = require("../schemas/userSchema");
 const bcrypt = require("bcrypt")
@@ -22,18 +22,47 @@ const getUsers = async (req, res) => {
     })
 }
 
-// works with bcrypt
+const login = async (req, res) => {
+    const { email, password } = req.body;
+    User.findOne({ email: email }, function (err, user) {
+        if (err) { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
+        else if (!user) { res.status(401).json({ error: 'Cannot find user' }) }
+        else {
+            console.log("password", password, "userPassword", user.password);
+            if (password !== user.password) { res.status(401).json({ error: 'Incorrect email or password' }) }
+            else {
+                // Issue token
+                // const payload = { email };
+                // const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+                // res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+                res.status(200).send(user)
+                console.log(user);
+            }
+        }
+    })
+}
+
+// works with no bcrypt
+// { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
 const addNewUser = async (req, res) => {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    console.log("hashedpassword", hashedPassword)
-    req.body.password = hashedPassword
-    const newUser = req.body
-    const user = new User(newUser)
-    user.save((function (err, user) {
+    const { email } = req.body;
+    User.findOne({ email: email }, function (err, user) {
         if (err) return console.error(err);
-        console.log(user, "addNewUser");
-    }))
-    res.status(201).send(newUser)
+        else if (user) { res.status(422).json({ error: 'user already exist' }) }
+        else {
+            // const hashedPassword = await bcrypt.hash(req.body.password, 10)
+            // console.log("hashedpassword", hashedPassword)
+            // req.body.password = hashedPassword
+            const newUser = req.body
+            const user = new User(newUser)
+            user.save((function (err, user) {
+                if (err) return console.error(err)
+                // else{}
+                console.log(user, "addNewUser")
+            }))
+            res.status(201).send(newUser)    
+        }
+    })
 }
 
 // works
@@ -85,4 +114,4 @@ const updateUserById = (req, res) => {
     })
 }
 
-module.exports = { getUserById, deleteUserById, addNewUser, updateUserById, getUsers }
+module.exports = { getUserById, deleteUserById, addNewUser, updateUserById, getUsers, login }

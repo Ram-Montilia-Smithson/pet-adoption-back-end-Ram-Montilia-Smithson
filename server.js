@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const port = 5000
 const cors = require("cors")
 const petRouter = require("./routs/petRouter");
 const userRouter = require("./routs/usersRouter")
@@ -19,13 +18,16 @@ const User = require('./schemas/userSchema');
 const cookieParser = require('cookie-parser');
 // const withAuth = require('./midle');
 const bcrypt = require("bcrypt")
-const secret = 'mysecretsshhh';
+const secret = 'mysecret';
+require("dotenv").config();
+const port = process.env.port || 5000
 
 
 app.use(cors())
 app.use(express.json())
 app.use('/api/pets', petRouter)
 app.use('/api/users', userRouter)
+// app.use('/login', userRouter)
 app.use(cookieParser());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true })) //this is different in the auth example
@@ -84,45 +86,45 @@ app.post("/addPet", upload.single("image"), (req, res) => {
 })
 
 // POST route to register a user - check if works
-app.post('/api/register', function (req, res) {
-    const { email, password } = req.body;
-    const user = new User({ email, password });
-    user.save(function (err) {
-        if (err) {
-            res.status(500)
-                .send("Error registering new user please try again.");
-        } else {
-            res.status(200).send("Welcome to the club!");
-        }
-    });
-});
+// app.post('/api/register', function (req, res) {
+//     const { email, password } = req.body;
+//     const user = new User({ email, password });
+//     user.save(function (err) {
+//         if (err) {
+//             res.status(500)
+//                 .send("Error registering new user please try again.");
+//         } else {
+//             res.status(200).send("Welcome to the club!");
+//         }
+//     });
+// });
 
 
 // not working - login no good
-app.post('/login', function (req, res) {
-    const { email, password } = req.body;
-    User.findOne({ email: email }, function (err, user) {
-        if (err) {console.error(err);res.status(500).json({error: 'error connecting to mongo please try again'});}
-        else if (!user) { res.status(401).json({ error: 'Cannot find user' }) }
-        user.isCorrectPassword(password, user.password, function (err, same) {
-            if (err) {
-                console.log(err);
-                res.status(500).json({ error: 'Internal error please try again' });
-            }
-            else if (!same) {res.status(401).json({error: 'Incorrect email or password'});}
-            else {
-                // Issue token
-                const payload = { email };
-                const token = jwt.sign(payload, secret, {expiresIn: '1h'});
-                res.cookie('token', token, { httpOnly: true }).sendStatus(200);
-            }
-        });
-    })
-})
+// app.use('/login', userRouter)
+// app.post('/login', function (req, res) {
+//     const { email, password } = req.body;
+//     User.findOne({ email: email }, function (err, user) {
+//         if (err) {console.error(err);res.status(500).json({error: 'error connecting to mongo please try again'});}
+//         else if (!user) { res.status(401).json({ error: 'Cannot find user' }) }
+//         else {
+//             console.log("password", password, "userPassword", user.password);
+//             if (password !== user.password) { res.status(401).json({ error: 'Incorrect email or password' }) }          
+//             else {
+//                 // Issue token
+//                 // const payload = { email };
+//                 // const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+//                 // res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+//                 res.status(200).send(user)
+//                 console.log(user);
+//             } 
+//         }
+//     })
+// })
 
-app.post("/users", async function (req, res) {
+// app.post("/users", async function (req, res) {
     
-})
+// })
 
 
 // process.on('warning', (warning) => {
