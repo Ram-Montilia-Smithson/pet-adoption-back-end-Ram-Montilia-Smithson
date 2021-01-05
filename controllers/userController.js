@@ -94,24 +94,36 @@ const deleteUserById = (req, res) => {
 
 // works
 const updateUserById = (req, res) => {
+    // let newUserInfo = {}
+    // for (const property in req.body) {
+    //     { newUserInfo[property] = req.body[property] };
+    // }
+    console.log("req.body",req.body);
+    if (req.body.email) {
+        const { email } = req.body;
+        User.findOne({ email: email }, function (err, user) {
+            if (err) { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
+            else if (user) { res.status(422).json({ error: 'email already exist' }) }
+        })
+    }
+    console.log("req.params.id", req.params.id);
     const userId = req.params.id
     User.findOneAndUpdate(
         // finding the doc
         { _id: ObjectId(userId) },
         // update the doc - req.body
-        { bio: 'new bio' },
+        req.body,
         // options
         { new: true, useFindAndModify: false },
         // cb
         function (err, updatedUser) {
-            if (err) { res.send(err) }
-            // console.log(err)
-            // else if()
+            if (err) { console.error(err); res.status(500).json({ error: `user ${user.firstName} was not updated, please try again` }); }
             else {
-                // console.log(update);
-                res.send(updatedUser)
+                console.log(updatedUser);
+                res.status(200).send(updatedUser)
             }
-    })
+        }
+    )
 }
 
 module.exports = { getUserById, deleteUserById, addNewUser, updateUserById, getUsers, login }
