@@ -94,16 +94,12 @@ const deleteUserById = (req, res) => {
 
 // works
 const updateUserById = (req, res) => {
-    // let newUserInfo = {}
-    // for (const property in req.body) {
-    //     { newUserInfo[property] = req.body[property] };
-    // }
     console.log("req.body",req.body);
     if (req.body.email) {
         const { email } = req.body;
         User.findOne({ email: email }, function (err, user) {
-            if (err) { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
-            else if (user) { res.status(422).json({ error: 'email already exist' }) }
+            if (err) { return res.status(500).json({ error: 'error connecting to mongo please try again' }); }
+            else if (user._id != req.params.id) { res.status(422).json({ error: 'email already exist' }); return }
         })
     }
     console.log("req.params.id", req.params.id);
@@ -117,9 +113,9 @@ const updateUserById = (req, res) => {
         { new: true, useFindAndModify: false },
         // cb
         function (err, updatedUser) {
-            if (err) { console.error(err); res.status(500).json({ error: `user ${user.firstName} was not updated, please try again` }); }
+            if (err) { return res.status(500).json({ error: `user ${user.firstName} was not updated, please try again` }); }
             else {
-                console.log(updatedUser);
+                console.log("updatedUser",updatedUser);
                 res.status(200).send(updatedUser)
             }
         }

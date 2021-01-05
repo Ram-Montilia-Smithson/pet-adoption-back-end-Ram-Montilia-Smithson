@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const url = "mongodb+srv://Ram:Ct9!7HSWeE@npVB@cluster0.ezysc.mongodb.net/petAdoptionProject?retryWrites=true&w=majority";
 const db = mongoose.connection;
 const Pet = require("../schemas/petSchema")
-// const multer = require('multer')
-// const cloudinary = require('cloudinary').v2;
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs')
 
 db.collection("pets")
 
@@ -15,23 +15,13 @@ db.once('open', function () {
     console.log("connectede successfully pet controller")
 });
 
-// cloudinary.config({
-    // cloud_name: 'pet-image-cloud',
-    // api_key: '477269894866243',
-    // api_secret: '8c5bqcREahOR6ulEUbraisngmDY'
+cloudinary.config({
+    cloud_name: 'pet-image-cloud',
+    api_key: '477269894866243',
+    api_secret: '8c5bqcREahOR6ulEUbraisngmDY'
     // CLOUDINARY_URL=cloudinary://477269894866243:8c5bqcREahOR6ulEUbraisngmDY@pet-image-cloud
-// });
+});
 
-// const storage = multer.diskStorage({
-    // destination: function (req, file, cb) {
-        // console.log("file", file, "req", req);
-        // cb(null, './images')
-    // },
-    // filename: function (req, file, cb) {
-        // cb(null, file.originalname)
-    // }
-// })
-// const upload = multer({ storage })
 
 // works
 const getPets = async (req, res) => {
@@ -40,17 +30,36 @@ const getPets = async (req, res) => {
         res.send(pets);
     })
 }
-// works with images, in server
-
-// const addNewPet = (req, res) => {
-//     const newPet = req.body;
-//     const pet = new Pet(newPet)
-//     pet.save((function (err, pet) {
-//         if (err) return console.error(err);
-//         console.log(pet, "addNewPet");
-//     }))
-//     res.send(newPet)
-// }
+// works with cloudinary
+const addNewPet = (req, res) => {
+    console.log(req.body);
+    console.log("req-file-path",req.file.path);
+    const path = req.file.path
+    cloudinary.uploader.upload(
+        path,
+        { public_id: `pet-adoption-images/${req.body.name}-${new Date()}` },
+        function (err, image) {
+            // , "connection error, pet was not saved"
+            if (err) { res.status(500).send(err) }
+            else {
+                console.log('image uploaded to Cloudinary')
+                fs.unlinkSync(path)
+                const newPet = req.body;
+                const pet = new Pet(newPet)
+                pet.image = image.secure_url
+                pet.save((function (err, pet) {
+                    // , "connection error, pet was not saved"
+                    if (err) { return res.status(500).send(err) }
+                    // "pet added"
+                    else {
+                        console.log(pet);
+                        return res.status(200).send(pet)
+                    }
+                }))
+            }
+        }
+    )
+}
 
 // works
 const getPetById = async (req, res) => {
@@ -97,4 +106,4 @@ const updatePetById = (req, res) => {
         })
 }
 
-module.exports = { getPetById, deletePetById, updatePetById, getPets }
+module.exports = { getPetById, deletePetById, updatePetById, getPets, addNewPet }
