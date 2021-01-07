@@ -11,7 +11,9 @@ const petSchema = new mongoose.Schema({
     color: String,
     bio: String,
     hypoallergenic: Boolean,
-    dietaryRestrictions: String
+    dietaryRestrictions: String,
+    status: String,
+    ownerId: Number
 });
 const Pet = mongoose.model('Pet', petSchema);
 
