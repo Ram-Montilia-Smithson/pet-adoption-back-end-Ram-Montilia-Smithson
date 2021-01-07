@@ -24,19 +24,27 @@ const getUsers = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
-    User.findOne({ email: email }, function (err, user) {
+    User.findOne({ email: email }, async function (err, user) {
         if (err) { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
         else if (!user) { res.status(401).json({ error: 'Cannot find user' }) }
         else {
+            // const hashedPassword = await bcrypt.hash(req.body.password, 10)
+            // console.log("hashedpassword", hashedPassword)
+            // req.body.password = hashedPassword
             console.log("password", password, "userPassword", user.password);
-            if (password !== user.password) { res.status(401).json({ error: 'Incorrect email or password' }) }
+            if (await bcrypt.compare(password, user.password)) {
+                res.status(200).send(user)
+                console.log(user);
+            }
+            // if (password !== user.password) { res.status(401).json({ error: 'Incorrect email or password' }) }
             else {
+                res.status(401).json({ error: 'Incorrect email or password' })
                 // Issue token
                 // const payload = { email };
                 // const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
                 // res.cookie('token', token, { httpOnly: true }).sendStatus(200);
-                res.status(200).send(user)
-                console.log(user);
+                // res.status(200).send(user)
+                // console.log(user);
             }
         }
     })
@@ -46,13 +54,13 @@ const login = async (req, res) => {
 // { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
 const addNewUser = async (req, res) => {
     const { email } = req.body;
-    User.findOne({ email: email }, function (err, user) {
+    User.findOne({ email: email }, async function (err, user) {
         if (err) return console.error(err);
         else if (user) { res.status(422).json({ error: 'user already exist' }) }
         else {
-            // const hashedPassword = await bcrypt.hash(req.body.password, 10)
-            // console.log("hashedpassword", hashedPassword)
-            // req.body.password = hashedPassword
+            const hashedPassword = await bcrypt.hash(req.body.password, 10)
+            console.log("hashedpassword", hashedPassword)
+            req.body.password = hashedPassword
             const newUser = req.body
             const user = new User(newUser)
             user.save((function (err, user) {

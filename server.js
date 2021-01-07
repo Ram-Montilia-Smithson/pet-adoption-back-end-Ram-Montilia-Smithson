@@ -9,7 +9,7 @@ const bodyParser = require('body-parser')
 // const { auth } = require("express-openid-connect");
 // const cookieParser = require('cookie-parser');
 // const withAuth = require('./midle');
-// const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt")
 require("dotenv").config();
 const port = process.env.port || 5000
 
@@ -59,7 +59,6 @@ app.use('/api/users', userRouter)
 // process.on('warning', (warning) => {
 //     console.log(warning.stack);
 // });
-
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
