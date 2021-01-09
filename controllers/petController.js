@@ -16,21 +16,19 @@ db.once('open', function () {
 });
 
 cloudinary.config({
-    cloud_name: 'pet-image-cloud',
-    api_key: '477269894866243',
-    api_secret: '8c5bqcREahOR6ulEUbraisngmDY'
-    // CLOUDINARY_URL=cloudinary://477269894866243:8c5bqcREahOR6ulEUbraisngmDY@pet-image-cloud
+    cloud_name: process.env.cloud_name,
+    api_key: process.env.api_key,
+    api_secret: process.env.api_secret
 });
 
 
-// works
 const getPets = async (req, res) => {
     Pet.find(function (err, pets) {
         if (err) return console.error(err);
         res.send(pets);
     })
 }
-// works with cloudinary
+
 const addNewPet = (req, res) => {
     console.log(req.body);
     console.log("req-file-path",req.file.path);
@@ -39,7 +37,7 @@ const addNewPet = (req, res) => {
         path,
         { public_id: `pet-adoption-images/${req.body.name}-${new Date()}` },
         function (err, image) {
-            // , "connection error, pet was not saved"
+            // , "connection error, new pet was not saved"
             if (err) { res.status(500).send(err) }
             else {
                 console.log('image uploaded to Cloudinary')
@@ -48,7 +46,7 @@ const addNewPet = (req, res) => {
                 const pet = new Pet(newPet)
                 pet.image = image.secure_url
                 pet.save((function (err, pet) {
-                    // , "connection error, pet was not saved"
+                    // , "connection error, new pet was not saved"
                     if (err) { return res.status(500).send(err) }
                     // "pet added"
                     else {
@@ -61,7 +59,6 @@ const addNewPet = (req, res) => {
     )
 }
 
-// works
 const getPetById = async (req, res) => {
     const petId = req.params.id
     console.log(petId, "found pet Id");
@@ -71,7 +68,6 @@ const getPetById = async (req, res) => {
     })
 }
 
-// works
 const deletePetById = (req, res) => {
     const petId = req.params.id
     Pet.deleteOne({ _id: ObjectId(petId) }, function (err, deletedPetById) {
@@ -84,9 +80,66 @@ const deletePetById = (req, res) => {
     })
 }
 
-// works
+const adoptPet = (req, res) => {
+    const petId = req.params.id
+    const userId = req.body.user
+    Pet.findOneAndUpdate(
+        // finding the doc
+        { _id: ObjectId(petId) },
+        // update the doc - req.body
+        {
+            ownerId: ObjectId(userId),
+            status: "Adopted"
+        },
+        // options
+        { new: true, useFindAndModify: false },
+        function (err, updatedPet) {
+            if (err) { res.send(err) }
+            else {res.send(updatedPet)}
+        })
+}
+
+const returnPet = (req, res) => {
+    const petId = req.params.id
+    Pet.findOneAndUpdate(
+        // finding the doc
+        { _id: ObjectId(petId) },
+        // update the doc - req.body
+        {
+            ownerId: "",
+            status: "Available"
+        },
+        // options
+        { new: true, useFindAndModify: false },
+        function (err, updatedPet) {
+            if (err) { res.send(err) }
+            else {res.send(updatedPet)}
+        })
+}
+
+const fosterPet = (req, res) => {
+    const petId = req.params.id
+    const userId = req.body.user
+    Pet.findOneAndUpdate(
+        // finding the doc
+        { _id: ObjectId(petId) },
+        // update the doc - req.body
+        {
+            ownerId: ObjectId(userId),
+            status: "Fostered"
+        },
+        // options
+        { new: true, useFindAndModify: false },
+        function (err, updatedPet) {
+            if (err) { res.send(err) }
+            else {res.send(updatedPet)}
+        })
+}
+
+// works - change it for edit pet page, admin only
 const updatePetById = (req, res) => {
     const petId = req.params.id
+    console.log(req.body)
     Pet.findOneAndUpdate(
         // finding the doc
         { _id: ObjectId(petId) },
@@ -94,16 +147,10 @@ const updatePetById = (req, res) => {
         { bio: 'new bio' },
         // options
         { new: true, useFindAndModify: false },
-        // cb
         function (err, updatedPet) {
             if (err) { res.send(err) }
-            // console.log(err)
-            // else if()
-            else {
-                // console.log(update);
-                res.send(updatedPet)
-            }
+            else { res.send(updatedPet) }
         })
 }
 
-module.exports = { getPetById, deletePetById, updatePetById, getPets, addNewPet }
+module.exports = { getPetById, deletePetById, updatePetById, getPets, addNewPet, adoptPet, returnPet, fosterPet }

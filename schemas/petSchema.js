@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const petSchema = new mongoose.Schema({
     name: String,
     type: String,
@@ -13,7 +12,7 @@ const petSchema = new mongoose.Schema({
     hypoallergenic: Boolean,
     dietaryRestrictions: String,
     status: String,
-    ownerId: Number
+    ownerId: String
 });
 const Pet = mongoose.model('Pet', petSchema);
 
