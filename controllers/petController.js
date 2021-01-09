@@ -136,7 +136,8 @@ const fosterPet = (req, res) => {
         })
 }
 
-// works - change it for edit pet page, admin only
+
+// works, but not in use in the app
 const updatePetById = (req, res) => {
     const petId = req.params.id
     console.log(req.body)
@@ -144,7 +145,7 @@ const updatePetById = (req, res) => {
         // finding the doc
         { _id: ObjectId(petId) },
         // update the doc - req.body
-        { bio: 'new bio' },
+        req.body,
         // options
         { new: true, useFindAndModify: false },
         function (err, updatedPet) {
