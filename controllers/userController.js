@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
 const { ObjectId } = require('mongodb');
+require("dotenv").config();
 const url = process.env.MONGO_CONNECTION_STRING ;
-const db = mongoose.connection;
 const User = require("../schemas/userSchema");
 const bcrypt = require("bcrypt")
+const mongoose = require('mongoose');
+const db = mongoose.connection;
 
 db.collection("users")
 
@@ -36,6 +37,7 @@ const login = async (req, res) => {
 }
 
 const addNewUser = async (req, res) => {
+    console.log(req.body);
     const { email } = req.body;
     User.findOne({ email: email }, async function (err, user) {
         if (err) return console.error(err);
