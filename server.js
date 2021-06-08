@@ -4,6 +4,7 @@ const cors = require("cors")
 const petRouter = require("./routs/petRouter");
 const userRouter = require("./routs/usersRouter")
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser');
 require("dotenv").config();
 const port = process.env.port || 6000
 const url = process.env.MONGO_CONNECTION_STRING ;
@@ -18,8 +19,9 @@ const url = process.env.MONGO_CONNECTION_STRING ;
 // });
 
 app.use(cors())
-app.use(express.json())
-app.use(bodyParser.json())
+app.use(cookieParser());
+app.use(express.json());
+// app.use(bodyParser.json}
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/api/pets', petRouter)
 app.use('/api/users', userRouter)

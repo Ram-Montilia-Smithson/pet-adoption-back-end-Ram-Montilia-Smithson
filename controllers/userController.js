@@ -5,10 +5,19 @@ const User = require("../schemas/userSchema");
 const bcrypt = require("bcrypt")
 const mongoose = require('mongoose');
 const db = mongoose.connection;
-
+const jwt = require('jsonwebtoken')
 db.collection("users")
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+
+const tokenMaxAge = 3 * 24 * 60 * 60;
+const cookieMaxAge = tokenMaxAge * 1000;
+const authCookieOptions = { maxAge: cookieMaxAge, httpOnly: true };
+
+const createToken = (uid) => {
+    return jwt.sign({ uid }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: tokenMaxAge })
+}
+
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
@@ -20,6 +29,28 @@ const getUsers = async (req, res) => {
         if (err) return console.error(err);
         res.send(users);
     })
+}
+
+const isAuthenticated = (req, res, next) => {
+    const token = verifyToken(req);
+    if (token) {
+        console.log("verified");
+        return next();
+    }
+    res.status(401).send('Unauthorized');
+}
+
+const verifyToken = (req) => {
+    const token = req.cookies.auth;
+    let dToken = null;
+    if (token) {
+        jwt.verify(token, process.env.TOKEN_SECRET, (err, decodedToken) => {
+            if (!err) {
+                dToken = decodedToken;
+            }
+        })
+    }
+    return dToken;
 }
 
 const login = async (req, res) => {
@@ -49,7 +80,11 @@ const addNewUser = async (req, res) => {
             const user = new User(newUser)
             user.save((function (err, user) {
                 if (err) return console.error(err)
-                else {res.status(201).send(user) }    
+                else {
+                    const token = createToken(user._id);
+                    res.cookie('auth', token, authCookieOptions);
+                    res.json(user);
+                 }    
             }))
         }
     })
@@ -122,4 +157,4 @@ const savedPets = async (req, res) => {
 }
 
 
-module.exports = { getUserById, deleteUserById, addNewUser, updateUserById, getUsers, login, savedPets }
+module.exports = { isAuthenticated, getUserById, deleteUserById, addNewUser, updateUserById, getUsers, login, savedPets }
