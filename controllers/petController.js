@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const url = "mongodb+srv://Ram:Ct9!7HSWeE@npVB@cluster0.ezysc.mongodb.net/petAdoptionProject?retryWrites=true&w=majority";
 const db = mongoose.connection;
 const Pet = require("../schemas/petSchema")
-const cloudinary = require('cloudinary').v2;
+// const cloudinary = require('cloudinary').v2;
 const fs = require('fs')
 
 db.collection("pets")
@@ -15,11 +15,11 @@ db.once('open', function () {
     console.log("connectede successfully pet controller")
 });
 
-cloudinary.config({
-    cloud_name: process.env.cloud_name,
-    api_key: process.env.api_key,
-    api_secret: process.env.api_secret
-});
+// cloudinary.config({
+//     cloud_name: process.env.cloud_name,
+//     api_key: process.env.api_key,
+//     api_secret: process.env.api_secret
+// });
 
 
 const getPets = async (req, res) => {
@@ -30,33 +30,33 @@ const getPets = async (req, res) => {
 }
 
 const addNewPet = (req, res) => {
-    console.log(req.body);
-    console.log("req-file-path",req.file.path);
-    const path = req.file.path
-    cloudinary.uploader.upload(
-        path,
-        { public_id: `pet-adoption-images/${req.body.name}-${new Date()}` },
-        function (err, image) {
-            // , "connection error, new pet was not saved"
-            if (err) { res.status(500).send(err) }
-            else {
-                console.log('image uploaded to Cloudinary')
-                fs.unlinkSync(path)
-                const newPet = req.body;
-                const pet = new Pet(newPet)
-                pet.image = image.secure_url
-                pet.save((function (err, pet) {
-                    // , "connection error, new pet was not saved"
-                    if (err) { return res.status(500).send(err) }
-                    // "pet added"
-                    else {
-                        console.log(pet);
-                        return res.status(200).send(pet)
-                    }
-                }))
-            }
-        }
-    )
+    console.log(req.file);
+    // console.log("req-file-path",req.file.path);
+    // const path = req.file.path
+    // cloudinary.uploader.upload(
+    //     path,
+    //     { public_id: `pet-adoption-images/${req.body.name}-${new Date()}` },
+    //     function (err, image) {
+    //         // , "connection error, new pet was not saved"
+    //         if (err) { res.status(500).send(err) }
+    //         else {
+    //             console.log('image uploaded to Cloudinary')
+    //             fs.unlinkSync(path)
+    //             const newPet = req.body;
+    //             const pet = new Pet(newPet)
+    //             pet.image = image.secure_url
+    //             pet.save((function (err, pet) {
+    //                 // , "connection error, new pet was not saved"
+    //                 if (err) { return res.status(500).send(err) }
+    //                 // "pet added"
+    //                 else {
+    //                     console.log(pet);
+    //                     return res.status(200).send(pet)
+    //                 }
+    //             }))
+    //         }
+    //     }
+    // )
 }
 
 const getPetById = async (req, res) => {

@@ -60,7 +60,10 @@ const login = async (req, res) => {
         else if (!user) { res.status(401).json({ error: 'Cannot find user' }) }
         else {
             if (await bcrypt.compare(password, user.password)) {
-                res.status(200).send(user)
+                const token = createToken(user._id);
+                    res.cookie('auth', token, authCookieOptions);
+                    res.json(user);
+                // res.status(200).send(user)
             }
             else {res.status(401).json({ error: 'Incorrect email or password' })}
         }
