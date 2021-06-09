@@ -30,7 +30,8 @@ const getPets = async (req, res) => {
 }
 
 const addNewPet = (req, res) => {
-    console.log(req.file);
+    console.log(req.body);
+    // console.log(req.file);
     // console.log("req-file-path",req.file.path);
     // const path = req.file.path
     // cloudinary.uploader.upload(
