@@ -60,6 +60,7 @@ const addNewPet = (req, res) => {
             }
         }
     )
+
 }
 
 const getPetById = async (req, res) => {
