@@ -36,7 +36,7 @@ const addNewPet = (req, res) => {
     const path = req.file.path
     cloudinary.uploader.upload(
         path,
-        { public_id: `pet-adoption-images/${req.body.name}-${new Date()}` },
+        { public_id: `pet-adoption-images/${req.body.name}-${new Date().toISOString()}` },
         function (err, image) {
             // , "connection error, new pet was not saved"
             if (err) {
@@ -60,6 +60,7 @@ const addNewPet = (req, res) => {
             }
         }
     )
+
 }
 
 const getPetById = async (req, res) => {
