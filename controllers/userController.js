@@ -44,7 +44,7 @@ const verifyToken = (req) => {
     const token = req.cookies.auth;
     let dToken = null;
     if (token) {
-        jwt.verify(token, process.env.TOKEN_SECRET, (err, decodedToken) => {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
             if (!err) {
                 dToken = decodedToken;
             }
@@ -61,6 +61,7 @@ const login = async (req, res) => {
         else {
             if (await bcrypt.compare(password, user.password)) {
                 const token = createToken(user._id);
+                    res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
                     res.cookie('auth', token, authCookieOptions);
                     res.json(user);
                 // res.status(200).send(user)
