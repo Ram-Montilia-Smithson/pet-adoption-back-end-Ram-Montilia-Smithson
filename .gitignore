@@ -1,4 +1,4 @@
 /node_modules
-package-lock.json
-/images
+/uploads
 .env
+yarn.lock
