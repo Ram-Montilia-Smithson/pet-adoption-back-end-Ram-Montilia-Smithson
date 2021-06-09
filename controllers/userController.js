@@ -143,7 +143,8 @@ const updateUserById = async (req, res) => {
     )
 }
 
-const savedPets = async (req, res) => {
+const savedPets = (req, res) => {
+    console.log(req.params.id, req.body, "saved");
     const userId = req.params.id
     User.findOneAndUpdate(
         // finding the doc
@@ -152,8 +153,8 @@ const savedPets = async (req, res) => {
         req.body,
         // options
         { new: true, useFindAndModify: false },
-        function (err, updatedUser) {
-            if (err) { return res.status(500).json({ error: `user ${user.firstName} was not updated, please try again` }); }
+        (err, updatedUser) => {
+            if (err) { return res.status(500).json({ error: `user ${user.firstName} was not updated due to ${err}, please try again` }); }
             else {res.status(200).send(updatedUser)}
         }
     )

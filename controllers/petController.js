@@ -31,13 +31,13 @@ const getPets = async (req, res) => {
 }
 
 const addNewPet = (req, res) => {
-    console.log(req.body);
-    console.log("req-file-path", req.file.path);
+    // console.log(req.body);
+    // console.log("req-file-path", req.file.path);
     const path = req.file.path
     cloudinary.uploader.upload(
         path,
         { public_id: `pet-adoption-images/${req.body.name}-${new Date().toISOString()}` },
-        function (err, image) {
+        (err, image) => {
             // , "connection error, new pet was not saved"
             if (err) {
                 res.status(500).send(err)
@@ -48,7 +48,7 @@ const addNewPet = (req, res) => {
                 const newPet = req.body;
                 const pet = new Pet(newPet)
                 pet.image = image.secure_url
-                pet.save((function (err, pet) {
+                pet.save(((err, pet) => {
                     // , "connection error, new pet was not saved"
                     if (err) { return res.status(500).send(err) }
                     // "pet added"
@@ -84,6 +84,7 @@ const deletePetById = (req, res) => {
 }
 
 const adoptPet = (req, res) => {
+    // console.log(req.params.id, req.body);
     const petId = req.params.id
     const userId = req.body.user
     Pet.findOneAndUpdate(
@@ -96,31 +97,33 @@ const adoptPet = (req, res) => {
         },
         // options
         { new: true, useFindAndModify: false },
-        function (err, updatedPet) {
+        (err, updatedPet) => {
             if (err) { res.send(err) }
             else {res.send(updatedPet)}
         })
 }
 
 const returnPet = (req, res) => {
+    console.log("return",req.params.id);
     const petId = req.params.id
     Pet.findOneAndUpdate(
         // finding the doc
         { _id: ObjectId(petId) },
         // update the doc - req.body
         {
-            ownerId: "",
+            ownerId: 0,
             status: "Available"
         },
         // options
         { new: true, useFindAndModify: false },
-        function (err, updatedPet) {
+        (err, updatedPet) => {
             if (err) { res.send(err) }
             else {res.send(updatedPet)}
         })
 }
 
 const fosterPet = (req, res) => {
+    // console.log(req.params.id, req.body);
     const petId = req.params.id
     const userId = req.body.user
     Pet.findOneAndUpdate(
@@ -133,7 +136,7 @@ const fosterPet = (req, res) => {
         },
         // options
         { new: true, useFindAndModify: false },
-        function (err, updatedPet) {
+        (err, updatedPet) => {
             if (err) { res.send(err) }
             else {res.send(updatedPet)}
         })
