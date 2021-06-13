@@ -5,7 +5,7 @@ const petRouter = require("./routs/petRouter");
 const userRouter = require("./routs/usersRouter")
 const cookieParser = require('cookie-parser');
 require("dotenv").config();
-const port = process.env.port || 6000
+const port = process.env.port || 5001
 
 app.use(cors())
 app.use(cookieParser());

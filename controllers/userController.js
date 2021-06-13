@@ -55,37 +55,47 @@ const verifyToken = (req) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
-    User.findOne({ email: email }, async function (err, user) {
-        if (err) { console.error(err); res.status(500).json({ error: 'error connecting to mongo please try again' }); }
-        else if (!user) { res.status(401).json({ error: 'Cannot find user' }) }
+    User.findOne({ email: email }, async (err, user) => {
+        if (err) {
+            // console.log("1")
+            res.send('error connecting to mongo please try again')
+        }
+        else if (!user) {
+            // console.log("2")
+            res.send('Cannot find user')
+        }
         else {
             if (await bcrypt.compare(password, user.password)) {
                 const token = createToken(user._id);
-                    res.cookie('auth', token, authCookieOptions);
-                    res.json(user);
-                // res.status(200).send(user)
+                res.cookie('auth', token, authCookieOptions);
+                // console.log(user);
+                res.json(user);
             }
-            else {res.status(401).json({ error: 'Incorrect email or password' })}
+            else {
+                // console.log("3");
+                res.send('Incorrect email or password')
+            }
         }
     })
 }
 
-const addNewUser = async (req, res) => {
-    console.log(req.body);
+const addNewUser = (req, res) => {
+    // console.log(req.body);
     const { email } = req.body;
-    User.findOne({ email: email }, async function (err, user) {
-        if (err) return console.error(err);
-        else if (user) { res.status(422).json({ error: 'user already exist' }) }
+    User.findOne({ email: email }, async (err, user) => {
+        if (err) res.send(`${err}`);
+        else if (user) { res.send("user already exist") }
         else {
             const hashedPassword = await bcrypt.hash(req.body.password, 10)
             req.body.password = hashedPassword
             const newUser = req.body
             const user = new User(newUser)
-            user.save((function (err, user) {
-                if (err) return console.error(err)
+            user.save(((err, user) => {
+                if (err) res.send(`${err}`)
                 else {
                     const token = createToken(user._id);
                     res.cookie('auth', token, authCookieOptions);
+                    console.log(user);
                     res.json(user);
                  }    
             }))
@@ -143,8 +153,7 @@ const updateUserById = async (req, res) => {
     )
 }
 
-const savedPets = (req, res) => {
-    console.log(req.params.id, req.body, "saved");
+const savedPets = async (req, res) => {
     const userId = req.params.id
     User.findOneAndUpdate(
         // finding the doc
@@ -153,8 +162,8 @@ const savedPets = (req, res) => {
         req.body,
         // options
         { new: true, useFindAndModify: false },
-        (err, updatedUser) => {
-            if (err) { return res.status(500).json({ error: `user ${user.firstName} was not updated due to ${err}, please try again` }); }
+        function (err, updatedUser) {
+            if (err) { return res.status(500).json({ error: `user ${user.firstName} was not updated, please try again` }); }
             else {res.status(200).send(updatedUser)}
         }
     )
