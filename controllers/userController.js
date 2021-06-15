@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken')
 db.collection("users")
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-
+mongoose.set('useCreateIndex', true);
 const tokenMaxAge = 3 * 24 * 60 * 60;
 const cookieMaxAge = tokenMaxAge * 1000;
 const authCookieOptions = { maxAge: cookieMaxAge, httpOnly: true };
@@ -125,32 +125,34 @@ const deleteUserById = (req, res) => {
     })
 }
 
-// works
-const updateUserById = async (req, res) => {
-    // validating new email not already exist 
+// 
+const updateUserById = (req, res) => {
     if (req.body.email) {
         const { email } = req.body;
-        User.findOne({ email: email }, function (err, user) {
-            if (err) { return res.status(500).json({ error: 'error connecting to mongo please try again' }); }
-            else if (user.id != req.params.id) { res.status(422).json({ error: 'email already exist' }); return }
+        User.findOne({ email: email }, async (err, user) => {
+            if (err) { res.send(`${err}, error connecting to mongo please try again`); }
+            else if (user._id != req.params.id) { res.send('email already exist'); }
+            else if (user._id == req.params.id) {
+                // hashing the new password
+                const userId = req.params.id
+                const hashedPassword = await bcrypt.hash(req.body.password, 10)
+                req.body.password = hashedPassword
+                User.findOneAndUpdate(
+                    // finding the doc
+                    { _id: ObjectId(userId) },
+                    // update the doc - req.body
+                    req.body,
+                    // options
+                    { new: true, useFindAndModify: false },
+                    (err, updatedUser) => {
+                        if (err) res.send(`${err}, user was not updated, please try again`)
+                        else { res.json(updatedUser) }
+                    }
+                )
+                .catch(err => res.send(`${err}`))
+            }
         })
     }
-    // hashing the new password
-    const userId = req.params.id
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    req.body.password = hashedPassword
-    User.findOneAndUpdate(
-        // finding the doc
-        { _id: ObjectId(userId) },
-        // update the doc - req.body
-        req.body,
-        // options
-        { new: true, useFindAndModify: false },
-        function (err, updatedUser) {
-            if (err) { return res.status(500).json({ error: `user ${user.firstName} was not updated, please try again` }); }
-            else {res.status(200).send(updatedUser)}
-        }
-    )
 }
 
 const savedPets = async (req, res) => {
