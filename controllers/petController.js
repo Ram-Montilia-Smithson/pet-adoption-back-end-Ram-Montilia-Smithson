@@ -26,9 +26,7 @@ cloudinary.config({
 const getPets = (req, res) => {
     Pet.find((err, pets) => {
         if (err) res.send('error connecting to mongo please try again')
-        else {
-            res.send(pets);
-        }
+        else {res.json(pets)}
     })
 }
 
@@ -64,12 +62,13 @@ const addNewPet = (req, res) => {
     )
 }
 
-const getPetById = async (req, res) => {
+const getPetById = (req, res) => {
     const petId = req.params.id
-    console.log(petId, "found pet Id");
-    Pet.findOne({_id: ObjectId(petId)} ,function (err, foundPetById) {
-        if (err) return console.log(err);
-        res.send(foundPetById);
+    // console.log(petId, "found pet Id");
+    Pet.findOne({_id: ObjectId(petId)} ,(err, foundPetById) => {
+        if (err) res.send(`${err} error connecting to mongo please try again`)
+        else if (!foundPetById) { res.send("didn't find pet") }
+        else if (foundPetById) { res.json(foundPetById); }
     })
 }
 
