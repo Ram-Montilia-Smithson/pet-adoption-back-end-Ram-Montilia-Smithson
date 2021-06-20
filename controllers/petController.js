@@ -23,10 +23,12 @@ cloudinary.config({
 });
 
 
-const getPets = async (req, res) => {
-    Pet.find(function (err, pets) {
-        if (err) return console.error(err);
-        res.send(pets);
+const getPets = (req, res) => {
+    Pet.find((err, pets) => {
+        if (err) res.send('error connecting to mongo please try again')
+        else {
+            res.send(pets);
+        }
     })
 }
 
@@ -98,8 +100,11 @@ const adoptPet = (req, res) => {
         // options
         { new: true, useFindAndModify: false },
         (err, updatedPet) => {
-            if (err) { res.send(err) }
-            else {res.send(updatedPet)}
+            if (err) { res.send(`${err}`) }
+            else if (updatedPet) {
+                console.log(updatedPet);
+                res.send(updatedPet)
+            }
         })
 }
 
