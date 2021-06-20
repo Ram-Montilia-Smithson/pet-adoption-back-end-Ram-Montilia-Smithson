@@ -127,14 +127,36 @@ const deleteUserById = (req, res) => {
 
 // 
 const updateUserById = (req, res) => {
+    // console.log(req.body);
     if (req.body.email) {
         const { email } = req.body;
+        const userId = req.params.id
         User.findOne({ email: email }, async (err, user) => {
             if (err) { res.send(`${err}, error connecting to mongo please try again`); }
-            else if (user._id != req.params.id) { res.send('email already exist'); }
-            else if (user._id == req.params.id) {
+            else if (user) {
+                if (user._id != req.params.id) { res.send('email already exist'); }
+                else if (user._id == req.params.id) {
+                    // hashing the new password
+                    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+                    req.body.password = hashedPassword
+                    User.findOneAndUpdate(
+                        // finding the doc
+                        { _id: ObjectId(userId) },
+                        // update the doc - req.body
+                        req.body,
+                        // options
+                        { new: true, useFindAndModify: false },
+                        (err, updatedUser) => {
+                            if (err) res.send(`${err}, user was not updated, please try again`)
+                            else { res.json(updatedUser) }
+                        }
+                        )
+                        .catch(err => res.send(`${err}`))
+                    }
+            }
+            else if (user == null) {
+                // console.log("null");
                 // hashing the new password
-                const userId = req.params.id
                 const hashedPassword = await bcrypt.hash(req.body.password, 10)
                 req.body.password = hashedPassword
                 User.findOneAndUpdate(
@@ -146,12 +168,12 @@ const updateUserById = (req, res) => {
                     { new: true, useFindAndModify: false },
                     (err, updatedUser) => {
                         if (err) res.send(`${err}, user was not updated, please try again`)
+                        else if (updatedUser == null) res.send(`err, user was not updated, please try again`)
                         else { res.json(updatedUser) }
                     }
                 )
-                .catch(err => res.send(`${err}`))
             }
-        })
+            })
     }
 }
 
