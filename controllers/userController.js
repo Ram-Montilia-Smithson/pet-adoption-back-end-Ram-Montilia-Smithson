@@ -25,9 +25,10 @@ db.once('open', function () {
 });
 
 const getUsers = async (req, res) => {
-    User.find(function (err, users) {
-        if (err) return console.error(err);
-        res.send(users);
+    // console.log("hhh");
+    User.find((err, users) => {
+        if (err) res.send('error connecting to mongo please try again')
+        else if (users) { res.json(users) }
     })
 }
 
@@ -41,6 +42,7 @@ const isAuthenticated = (req, res, next) => {
 }
 
 const verifyToken = (req) => {
+    // console.log(req.cookies);
     const token = req.cookies.auth;
     let dToken = null;
     if (token) {
@@ -56,31 +58,20 @@ const verifyToken = (req) => {
 const login = async (req, res) => {
     const { email, password } = req.body;
     User.findOne({ email: email }, async (err, user) => {
-        if (err) {
-            // console.log("1")
-            res.send('error connecting to mongo please try again')
-        }
-        else if (!user) {
-            // console.log("2")
-            res.send('Cannot find user')
-        }
+        if (err) { res.send('error connecting to mongo please try again')}
+        else if (!user) { res.send('Cannot find user')}
         else {
             if (await bcrypt.compare(password, user.password)) {
                 const token = createToken(user._id);
                 res.cookie('auth', token, authCookieOptions);
-                // console.log(user);
                 res.json(user);
             }
-            else {
-                // console.log("3");
-                res.send('Incorrect email or password')
-            }
+            else { res.send('Incorrect email or password')}
         }
     })
 }
 
 const addNewUser = (req, res) => {
-    // console.log(req.body);
     const { email } = req.body;
     User.findOne({ email: email }, async (err, user) => {
         if (err) res.send(`${err}`);
@@ -103,7 +94,7 @@ const addNewUser = (req, res) => {
     })
 }
 
-// works
+// works - not used
 const getUserById = async (req, res) => {
     const userId = req.params.id
     User.findOne({ _id: ObjectId(userId) }, function (err, foundUserById) {
@@ -112,7 +103,7 @@ const getUserById = async (req, res) => {
     })
 }
 
-// works
+// works - not used
 const deleteUserById = (req, res) => {
     const userId = req.params.id
     User.deleteOne({ _id: ObjectId(userId) }, function (err, deletedUserById) {
@@ -127,7 +118,6 @@ const deleteUserById = (req, res) => {
 
 // 
 const updateUserById = (req, res) => {
-    // console.log(req.body);
     if (req.body.email) {
         const { email } = req.body;
         const userId = req.params.id
@@ -155,7 +145,6 @@ const updateUserById = (req, res) => {
                     }
             }
             else if (user == null) {
-                // console.log("null");
                 // hashing the new password
                 const hashedPassword = await bcrypt.hash(req.body.password, 10)
                 req.body.password = hashedPassword
@@ -178,7 +167,6 @@ const updateUserById = (req, res) => {
 }
 
 const savedPets = async (req, res) => {
-    // console.log(req.body, req.params.id);
     const userId = req.params.id
     User.findOneAndUpdate(
         // finding the doc
@@ -194,5 +182,7 @@ const savedPets = async (req, res) => {
     )
 }
 
-
-module.exports = { isAuthenticated, getUserById, deleteUserById, addNewUser, updateUserById, getUsers, login, savedPets }
+module.exports = {
+    isAuthenticated,
+    getUserById, deleteUserById, addNewUser, updateUserById, getUsers, login, savedPets
+}

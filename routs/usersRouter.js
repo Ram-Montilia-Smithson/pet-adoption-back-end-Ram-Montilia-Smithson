@@ -2,13 +2,17 @@
 const express = require('express')
 const router = express.Router()
 
-const { getUserById, deleteUserById, updateUserById, isAuthenticated, addNewUser, getUsers, login, savedPets } = require("../controllers/userController")
+const {
+    // getUserById, deleteUserById,
+    updateUserById, isAuthenticated, addNewUser, getUsers, login, savedPets } = require("../controllers/userController")
 
-router.get("/", isAuthenticated, getUsers);
+router.get("/",
+    // isAuthenticated,
+    getUsers);
 
-router.get("/:id", getUserById);
+// router.get("/:id", getUserById);
 
-router.delete("/:id", deleteUserById);
+// router.delete("/:id", deleteUserById);
 
 router.post("/signup", express.json(), addNewUser);
 
