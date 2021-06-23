@@ -6,15 +6,13 @@ const Pet = require("../schemas/petSchema")
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs')
 require("dotenv").config();
-
 db.collection("pets")
-
+const jwt = require('jsonwebtoken')
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.set('useCreateIndex', true);
 
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-    console.log("connected successfully pet controller")
-});
+db.once('open', () => { console.log("connected successfully pet controller")});
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -22,26 +20,37 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
+const isAuthenticated = (req, res, next) => {
+    const token = verifyToken(req);
+    if (token) return next();
+    res.status(401).send('Unauthorized');
+}
+
+const verifyToken = (req) => {
+    const token = req.cookies.auth;
+    let dToken = null;
+    if (token) {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
+            if (!err) dToken = decodedToken;
+        })
+    }
+    return dToken;
+}
 
 const getPets = (req, res) => {
     Pet.find((err, pets) => {
         if (err) res.send('error connecting to mongo please try again')
-        else if (pets) {res.json(pets)}
+        else if (pets) res.json(pets)
     })
 }
 
 const addNewPet = (req, res) => {
-    // console.log(req.body);
-    // console.log("req-file-path", req.file.path);
     const path = req.file.path
     cloudinary.uploader.upload(
         path,
         { public_id: `pet-adoption-images/${req.body.name}-${new Date().toISOString()}` },
         (err, image) => {
-            // , "connection error, new pet was not saved"
-            if (err) {
-                res.status(500).send(err)
-            }
+            if (err) res.status(500).send(err)
             else {
                 console.log('image uploaded to Cloudinary')
                 fs.unlinkSync(path)
@@ -116,29 +125,24 @@ const updatePetById = (req, res) => {
     
     const getPetById = (req, res) => {
         const petId = req.params.id
-        // console.log(petId, "found pet Id");
     Pet.findOne({_id: ObjectId(petId)} ,(err, foundPetById) => {
         if (err) res.send(`${err} error connecting to mongo please try again`)
-        else if (!foundPetById) { res.send("didn't find pet") }
-        else if (foundPetById) { res.json(foundPetById); }
+        else if (!foundPetById) res.send("didn't find pet")
+        else if (foundPetById) res.json(foundPetById);
     })
 }
 
-// needs fixing
-// const deletePetById = (req, res) => {
-//     const petId = req.params.id
-//     Pet.deleteOne({ _id: ObjectId(petId) }, function (err, deletedPetById) {
-//         if (err) {res.send(err)}
-//         else if (deletedPetById.n === 0) {res.send("no pet was deleted")}
-//         else {
-//             const message = `the pet with the id of ${petId} was deleted`
-//             res.send(message)
-//         }
-//     })
-// }
+const deletePetById = (req, res) => {
+    const petId = req.params.id
+    const petName = req.params.name
+    Pet.deleteOne({ _id: ObjectId(petId) }, (err, deletedPetById) => {
+        if (err) res.send(`${err} error connecting to mongo please try again`)
+        else if (deletedPetById.n === 0) res.send("pet not found, no pet was deleted")
+        else res.send(`the pet ${petName} was deleted`)
+    })
+}
 
 const adoptPet = (req, res) => {
-    // console.log(req.params.id, req.body);
     const petId = req.params.id
     const userId = req.body.user
     Pet.findOneAndUpdate(
@@ -152,16 +156,12 @@ const adoptPet = (req, res) => {
         // options
         { new: true, useFindAndModify: false },
         (err, updatedPet) => {
-            if (err) { res.send(`${err}`) }
-            else if (updatedPet) {
-                console.log(updatedPet);
-                res.send(updatedPet)
-            }
+            if (err) res.send(`${err}`)
+            else if (updatedPet) res.send(updatedPet)
         })
 }
 
 const returnPet = (req, res) => {
-    console.log("return",req.params.id);
     const petId = req.params.id
     Pet.findOneAndUpdate(
         // finding the doc
@@ -174,13 +174,12 @@ const returnPet = (req, res) => {
         // options
         { new: true, useFindAndModify: false },
         (err, updatedPet) => {
-            if (err) { res.send(err) }
-            else {res.send(updatedPet)}
+            if (err) res.send(err)
+            else res.send(updatedPet)
         })
 }
 
 const fosterPet = (req, res) => {
-    // console.log(req.params.id, req.body);
     const petId = req.params.id
     const userId = req.body.user
     Pet.findOneAndUpdate(
@@ -194,16 +193,11 @@ const fosterPet = (req, res) => {
         // options
         { new: true, useFindAndModify: false },
         (err, updatedPet) => {
-            if (err) { res.send(err) }
-            else {res.send(updatedPet)}
+            if (err) res.send(err)
+            else res.send(updatedPet)
         })
 }
 
 
 
-module.exports = {
-    getPetById,
-    // deletePetById, 
-    updatePetById,
-    getPets, addNewPet, adoptPet, returnPet, fosterPet
-}
+module.exports = { getPetById, isAuthenticated, updatePetById, getPets, addNewPet, adoptPet, returnPet, fosterPet, deletePetById,}

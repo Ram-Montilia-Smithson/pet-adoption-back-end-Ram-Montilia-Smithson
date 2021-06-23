@@ -15,6 +15,4 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/api/pets', petRouter)
 app.use('/api/users', userRouter)
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
-})
+app.listen(port, () => { console.log(`Example app listening at http://localhost:${port}`)})
