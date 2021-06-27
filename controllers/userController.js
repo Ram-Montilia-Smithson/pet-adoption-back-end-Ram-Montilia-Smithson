@@ -50,7 +50,7 @@ const login = async (req, res) => {
     User.findOne({ email: email }, async (err, user) => {
         if (err) res.send('error connecting to mongo please try again')
         else if (!user) res.send('Cannot find user')
-        else {
+        else if (user) {
             if (await bcrypt.compare(password, user.password)) {
                 const token = createToken(user._id);
                 res.cookie('auth', token, authCookieOptions);
@@ -66,14 +66,14 @@ const addNewUser = (req, res) => {
     User.findOne({ email: email }, async (err, user) => {
         if (err) res.send(`${err}`);
         else if (user) res.send("user already exist")
-        else {
+        else if (!user) {
             const hashedPassword = await bcrypt.hash(req.body.password, 10)
             req.body.password = hashedPassword
             const newUser = req.body
             const user = new User(newUser)
             user.save(((err, user) => {
                 if (err) res.send(`${err}`)
-                else {
+                else if (user) {
                     const token = createToken(user._id);
                     res.cookie('auth', token, authCookieOptions);
                     res.json(user);
@@ -92,7 +92,6 @@ const getUserById = async (req, res) => {
     })
 }
 
-// works - not used
 const deleteUserById = (req, res) => {
     const userId = req.params.id
     const userName = req.params.name
@@ -124,13 +123,12 @@ const updateUserById = (req, res) => {
                         { new: true, useFindAndModify: false },
                         (err, updatedUser) => {
                             if (err) res.send(`${err}, user was not updated, please try again`)
-                            else res.json(updatedUser)
+                            else if (updatedUser) res.json(updatedUser)
                         }
                     )
-                    .catch(err => res.send(`${err}`))
                 }
             }
-            else if (user == null) {
+            else if (user === null) {
                 // hashing the new password
                 const hashedPassword = await bcrypt.hash(req.body.password, 10)
                 req.body.password = hashedPassword
@@ -143,8 +141,8 @@ const updateUserById = (req, res) => {
                     { new: true, useFindAndModify: false },
                     (err, updatedUser) => {
                         if (err) res.send(`${err}, user was not updated, please try again`)
-                        else if (updatedUser == null) res.send(`err, user was not updated, please try again`)
-                        else res.json(updatedUser)
+                        else if (updatedUser === null) res.send(`err, user was not updated, please try again`)
+                        else if (updatedUser) res.json(updatedUser)
                     }
                 )
             }
@@ -163,7 +161,7 @@ const savedPets = async (req, res) => {
         { new: true, useFindAndModify: false },
         (err, updatedUser) => {
             if (err) res.send(`${err}, pet save failed, please try again`)
-            else res.json(updatedUser)
+            else if (updatedUser) res.json(updatedUser)
         }
     )
 }

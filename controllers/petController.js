@@ -51,7 +51,7 @@ const addNewPet = (req, res) => {
         { public_id: `pet-adoption-images/${req.body.name}-${new Date().toISOString()}` },
         (err, image) => {
             if (err) res.status(500).send(err)
-            else {
+            else if (image) {
                 console.log('image uploaded to Cloudinary')
                 fs.unlinkSync(path)
                 const newPet = req.body;
@@ -59,12 +59,9 @@ const addNewPet = (req, res) => {
                 pet.image = image.secure_url
                 pet.save(((err, pet) => {
                     // , "connection error, new pet was not saved"
-                    if (err) { return res.status(500).send(err) }
+                    if (err) return res.status(500).send(err)
                     // "pet added"
-                    else {
-                        console.log(pet);
-                        return res.status(200).send(pet)
-                    }
+                    else if (pet) return res.status(200).json(pet)
                 }))
             }
         }
@@ -84,7 +81,7 @@ const updatePetById = (req, res) => {
                 if (err) {
                     res.status(500).send(err)
                 }
-                else {
+                else if (image) {
                     console.log('image uploaded to Cloudinary')
                     fs.unlinkSync(path)
                     const updatedPet = req.body;
@@ -97,8 +94,8 @@ const updatePetById = (req, res) => {
                         // options
                         { new: true, useFindAndModify: false },
                         (err, updatedPet) => {
-                            if (err) { res.send(err) }
-                            else { res.send(updatedPet) }
+                            if (err) res.send(err)
+                            else if (updatedPet) res.json(updatedPet)
                             console.log(updatedPet);
                         }
                     )
@@ -116,7 +113,7 @@ const updatePetById = (req, res) => {
             { new: true, useFindAndModify: false },
             (err, updatedPet) => {
                 if (err) { res.send(err) }
-                else { res.send(updatedPet) }
+                else if (updatedPet) { res.json(updatedPet) }
                 console.log(updatedPet);
             }
         )
@@ -175,7 +172,7 @@ const returnPet = (req, res) => {
         { new: true, useFindAndModify: false },
         (err, updatedPet) => {
             if (err) res.send(err)
-            else res.send(updatedPet)
+            else if (updatedPet) res.send(updatedPet)
         })
 }
 
@@ -194,7 +191,7 @@ const fosterPet = (req, res) => {
         { new: true, useFindAndModify: false },
         (err, updatedPet) => {
             if (err) res.send(err)
-            else res.send(updatedPet)
+            else if (updatedPet) res.send(updatedPet)
         })
 }
 
